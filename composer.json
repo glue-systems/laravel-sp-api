@@ -1,0 +1,51 @@
+{
+    "name": "glue-systems/laravel-sp-api",
+    "description": "Laravel package for making LWA- / RDT-authorized requests to Amazon Selling Partner API (SP-API)",
+    "type": "library",
+    "keywords": [
+        "laravel",
+        "sp-api",
+        "amazon",
+        "selling-partner",
+        "client",
+        "lwa",
+        "rdt"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Glue Systems, LLC Dev Team",
+            "role": "Package Creators"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "glue-systems/sp-api-open-api": "^1.0",
+        "illuminate/support": "^5.1 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Glue\\SpApi\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0",
+        "mockery/mockery": "1.3.*"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Glue\\SpApi\\Laravel\\SpApiServiceProvider"
+            ],
+            "aliases": {
+                "SpApi": "Glue\\SpApi\\Laravel\\Facades\\SpApi",
+                "SpApiCredentialProvider": "Glue\\SpApi\\Laravel\\Facades\\SpApiCredentialProvider"
+            }
+        }
+    }
+}
