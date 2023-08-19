@@ -31,6 +31,11 @@ class SpApiServiceProvider extends ServiceProvider
         $this->registerServices();
     }
 
+    public function boot()
+    {
+        $this->offerPublishing();
+    }
+
     protected function registerContainer()
     {
         $this->app->bind(SpApiContract::class, function (Container $app) {
@@ -116,5 +121,21 @@ class SpApiServiceProvider extends ServiceProvider
             : Config::get('sp_api.cache.store');
 
         return Cache::store($storeName);
+    }
+
+    protected function offerPublishing()
+    {
+        if (!$this->app->runningInConsole()) {
+            return;
+        }
+
+        if (!function_exists('config_path')) {
+            // Function not available and 'publish' not relevant in Lumen (idea from Spatie)
+            return;
+        }
+
+        $this->publishes([
+            __DIR__ . '/../config/sp_api.php' => config_path('sp_api.php'),
+        ]);
     }
 }
