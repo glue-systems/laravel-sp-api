@@ -2,10 +2,9 @@
 
 namespace Glue\SpApi\Laravel\Utilities;
 
-use Glue\SpApi\Laravel\Contracts\SpApiContract;
-use Glue\SpApi\OpenAPI\Container\SpApi as BaseSpApiContainer;
+use Glue\SpApi\OpenAPI\SpApi as BaseSpApi;
 
-class SpApi extends BaseSpApiContainer implements SpApiContract
+class SpApi extends BaseSpApi
 {
     //
 }

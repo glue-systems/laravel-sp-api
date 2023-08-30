@@ -2,20 +2,19 @@
 
 namespace Glue\SpApi\Laravel;
 
-use Glue\SpApi\Laravel\Contracts\SpApiContract;
 use Glue\SpApi\Laravel\Utilities\SpApi;
 use Glue\SpApi\Laravel\Utilities\SpApiCredentialProvider;
+use Glue\SpApi\OpenAPI\Configuration\SpApiConfig;
 use Glue\SpApi\OpenAPI\Services\Authenticator\ClientAuthenticator;
 use Glue\SpApi\OpenAPI\Services\Authenticator\ClientAuthenticatorInterface;
-use Glue\SpApi\OpenAPI\Services\Builder\ClientBuilder;
-use Glue\SpApi\OpenAPI\Services\Builder\ClientBuilderInterface;
 use Glue\SpApi\OpenAPI\Services\Factory\ClientFactory;
 use Glue\SpApi\OpenAPI\Services\Factory\ClientFactoryInterface;
+use Glue\SpApi\OpenAPI\Services\Lwa\LwaClient;
+use Glue\SpApi\OpenAPI\Services\Lwa\LwaClientInterface;
 use Glue\SpApi\OpenAPI\Services\Lwa\LwaService;
 use Glue\SpApi\OpenAPI\Services\Lwa\LwaServiceInterface;
-use Glue\SpApi\OpenAPI\Services\Rdt\RestrictedDataTokenProvider;
-use Glue\SpApi\OpenAPI\Services\Rdt\RestrictedDataTokenProviderInterface;
-use Glue\SpApi\OpenAPI\SpApiConfig;
+use Glue\SpApi\OpenAPI\Services\Rdt\RdtService;
+use Glue\SpApi\OpenAPI\Services\Rdt\RdtServiceInterface;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\Cache;
@@ -26,9 +25,20 @@ class SpApiServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->registerContainer();
+        /**
+         * The SpApi class must be instantiated once per execution, and so cannot
+         * be bound as a singleton.
+         */
+        $this->app->bind(SpApi::class, function (Container $app) {
+            return new SpApi(
+                $app->make(ClientFactoryInterface::class),
+                $app->make(RdtServiceInterface::class),
+                $app->make(LwaServiceInterface::class),
+                $this->buildSpApiConfig()
+            );
+        });
+
         $this->registerSingletons();
-        $this->registerServices();
     }
 
     public function boot()
@@ -36,31 +46,24 @@ class SpApiServiceProvider extends ServiceProvider
         $this->offerPublishing();
     }
 
-    protected function registerContainer()
-    {
-        $this->app->bind(SpApiContract::class, function (Container $app) {
-            return new SpApi(
-                $app->make(ClientFactoryInterface::class),
-                $app->make(RestrictedDataTokenProviderInterface::class),
-                $this->buildSpApiConfig()
-            );
-        });
-    }
-
     protected function registerSingletons()
     {
         $this->app->singleton(SpApiCredentialProvider::class, SpApiCredentialProvider::class);
-    }
 
-    protected function registerServices()
-    {
-        $this->app->bind(LwaServiceInterface::class, function () {
-            return new LwaService($this->buildSpApiConfig());
+        $this->app->singleton(LwaClientInterface::class, function () {
+            return new LwaClient($this->buildSpApiConfig());
         });
 
-        $this->app->bind(ClientAuthenticatorInterface::class, function (Container $app) {
-            return new ClientAuthenticator(
+        $this->app->singleton(LwaServiceInterface::class, function (Container $app) {
+            return new LwaService(
+                $app->make(LwaClientInterface::class),
                 $this->resolveCacheStore(),
+                $this->buildSpApiConfig()
+            );
+        });
+
+        $this->app->singleton(ClientAuthenticatorInterface::class, function (Container $app) {
+            return new ClientAuthenticator(
                 $app->make(LwaServiceInterface::class),
                 sp_api_credential_provider()->resolveProviderViaLaravelConfig(
                     Config::get('sp_api')
@@ -69,22 +72,15 @@ class SpApiServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->bind(ClientBuilderInterface::class, function (Container $app) {
-            return new ClientBuilder(
+        $this->app->singleton(ClientFactoryInterface::class, function (Container $app) {
+            return new ClientFactory(
                 $app->make(ClientAuthenticatorInterface::class),
                 $this->buildSpApiConfig()
             );
         });
 
-        $this->app->bind(ClientFactoryInterface::class, function (Container $app) {
-            return new ClientFactory(
-                $app->make(ClientBuilderInterface::class),
-                $this->buildSpApiConfig()
-            );
-        });
-
-        $this->app->bind(RestrictedDataTokenProviderInterface::class, function (Container $app) {
-            return new RestrictedDataTokenProvider(
+        $this->app->singleton(RdtServiceInterface::class, function (Container $app) {
+            return new RdtService(
                 $app->make(ClientFactoryInterface::class)
             );
         });
@@ -96,18 +92,22 @@ class SpApiServiceProvider extends ServiceProvider
     protected function buildSpApiConfig()
     {
         return SpApiConfig::make([
-            'spApiBaseUrl'          => Config::get('sp_api.base_url'),
-            'marketplaceId'         => Config::get('sp_api.marketplace_id'),
-            'sellerId'              => Config::get('sp_api.seller_id'),
-            'appNameAndVersion'     => Config::get('sp_api.app_name_and_version'),
-            'appLanguageAndVersion' => Config::get('sp_api.app_language_and_version'),
-            'sandbox'               => Config::get('sp_api.sandbox'),
-            'lwaOAuthBaseUrl'       => Config::get('sp_api.lwa.o_auth_base_url'),
-            'lwaRefreshToken'       => Config::get('sp_api.lwa.refresh_token'),
-            'lwaClientId'           => Config::get('sp_api.lwa.client_id'),
-            'lwaClientSecret'       => Config::get('sp_api.lwa.client_secret'),
-            'debugDomainApiCall'    => Config::get('sp_api.debug.domain_api_call'),
-            'debugOAuthApiCall'     => Config::get('sp_api.debug.o_auth_api_call'),
+            'defaultBaseUrl'                       => Config::get('sp_api.default.base_url'),
+            'defaultMarketplaceId'                 => Config::get('sp_api.default.marketplace_id'),
+            'defaultSellerId'                      => Config::get('sp_api.default.seller_id'),
+            'defaultAwsCredentialScopeRegion'      => Config::get('sp_api.default.aws_credential_scope_region'),
+            'defaultAwsCredentialScopeService'     => Config::get('sp_api.default.aws_credential_scope_service'),
+            'lwaOAuthBaseUrl'                      => Config::get('sp_api.lwa.o_auth_base_url'),
+            'lwaRefreshToken'                      => Config::get('sp_api.lwa.refresh_token'),
+            'lwaClientId'                          => Config::get('sp_api.lwa.client_id'),
+            'lwaClientSecret'                      => Config::get('sp_api.lwa.client_secret'),
+            'lwaAccessTokenCacheKey'               => Config::get('sp_api.cache.lwa_access_token_key'),
+            'appNameAndVersion'                    => Config::get('sp_api.app_name_and_version'),
+            'appLanguageAndVersion'                => Config::get('sp_api.app_language_and_version'),
+            'sandbox'                              => Config::get('sp_api.sandbox'),
+            'domainApiCallDebug'                   => Config::get('sp_api.debug.domain_api_call'),
+            'oAuthApiCallDebug'                    => Config::get('sp_api.debug.o_auth_api_call'),
+            'alwaysUnpackApiExceptionResponseBody' => Config::get('sp_api.always_unpack_api_exception_response_body'),
         ]);
     }
 
