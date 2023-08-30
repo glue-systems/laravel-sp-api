@@ -72,12 +72,9 @@ class SpApi extends Facade
         static::createFreshMockInstance();
     }
 
-    public static function shouldExecuteProviding(
-        $valueToProvideToCallback,
-        int $times = 1
-    ) {
+    public static function shouldExecuteProviding($valueToProvideToCallback)
+    {
         return static::shouldReceive('execute')
-            ->times($times)
             ->andReturnUsing(function ($receivedCallbackArgument) use ($valueToProvideToCallback) {
                 try {
                     $callbackReturnValue = $receivedCallbackArgument($valueToProvideToCallback);
