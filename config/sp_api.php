@@ -108,7 +108,7 @@ return [
     'selected_credential_provider' => env('SP_API_DEFAULT_CREDENTIAL_PROVIDER', 'from_credentials'),
 
     /**
-     * Configuration arrays relevant keyed by the the name of the credential provider. To select one
+     * Configuration arrays keyed by the the name of the credential provider. To select one
      * of these as the default, see the config field `selected_credential_provider` above.
      */
     'credential_providers' => [
