@@ -72,13 +72,15 @@ class SpApi extends Facade
         static::createFreshMockInstance();
     }
 
-    public static function shouldExecuteSuccessfully(int $times = 1)
-    {
+    public static function shouldExecuteProviding(
+        $valueToProvideToCallback,
+        int $times = 1
+    ) {
         return static::shouldReceive('execute')
             ->times($times)
-            ->andReturnUsing(function ($receivedCallbackArgument) {
+            ->andReturnUsing(function ($receivedCallbackArgument) use ($valueToProvideToCallback) {
                 try {
-                    $callbackReturnValue = $receivedCallbackArgument();
+                    $callbackReturnValue = $receivedCallbackArgument($valueToProvideToCallback);
                     return $callbackReturnValue;
                 } catch (Exception $ex) {
                     if (SpApiRoster::isApiException($ex)) {
