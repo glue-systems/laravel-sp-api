@@ -1,14 +1,14 @@
 <?php
 
-use Glue\SpApi\Laravel\Contracts\SpApiContract;
+use Glue\SpApi\Laravel\Utilities\SpApi;
 use Glue\SpApi\Laravel\Utilities\SpApiCredentialProvider;
 
 if (!function_exists('sp_api')) {
 
     /**
-     * Get the SP-API container.
+     * Create a new SP-API execution.
      */
-    function sp_api(): SpApiContract
+    function sp_api(): SpApi
     {
         return \Glue\SpApi\Laravel\Facades\SpApi::getFacadeRoot();
     }
