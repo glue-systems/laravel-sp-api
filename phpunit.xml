@@ -24,6 +24,7 @@
         <env name="CACHE_DRIVER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="LOG_CHANNEL" value="daily"/>
+        <env name="DB_CONNECTION" value="testing"/>
         <env name="SP_API_SANDBOX" value="true"/>
     </php>
 </phpunit>
