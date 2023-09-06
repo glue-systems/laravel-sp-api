@@ -70,7 +70,7 @@ return [
      * the configured URI as an extra layer of protection against making unintended calls to production
      * endpoints.
      */
-    'sandbox'                                   => env('SP_API_SANDBOX', true),
+    'sandbox'                                   => (bool) env('SP_API_SANDBOX', true),
 
     /**
      * SP-API error responses often include JSON response bodies with more information about any
@@ -90,13 +90,13 @@ return [
          * This value will turn on or off verbose debug output for calls to
          * SP-API domains such as Orders, MerchantFulfillment Reports, etc.
          */
-        'domain_api_call' => env('SP_API_DOMAIN_API_CALL_DEBUG', false),
+        'domain_api_call' => (bool) env('SP_API_DOMAIN_API_CALL_DEBUG', false),
 
         /**
          * This value will turn on or off verbose debug output for calls to
          * LWA access token requests (the SP-API implementation of OAuth).
          */
-        'o_auth_api_call' => env('SP_API_O_AUTH_API_CALL_DEBUG', false),
+        'o_auth_api_call' => (bool) env('SP_API_O_AUTH_API_CALL_DEBUG', false),
     ],
 
     /**
