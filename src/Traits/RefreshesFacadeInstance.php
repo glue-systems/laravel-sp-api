@@ -2,6 +2,18 @@
 
 namespace Glue\SpApi\Laravel\Traits;
 
+/**
+ * A Trait that clears the Facade's internal static reference to a
+ * resolved instance. Note that, depending on the implementation of the
+ * application binding, it is still possible for the same instance to be
+ * returned on subsequent calls to `getFacadeRoot`, such as when:
+ *   i) The object is registered as a singleton in a Service Provider;
+ *   ii) Testing helper methods like `[Facade]::shouldReceive` are used.
+ *     a) This is because the Mockery library retains its own static
+ *         references to its mocks.
+ *     b) This behavior should be desirable in most cases, as this trait is
+ *         not intended to disrupt Laravel's robust facade testing features.
+ */
 trait RefreshesFacadeInstance
 {
     /**
@@ -11,13 +23,6 @@ trait RefreshesFacadeInstance
      */
     public static function getFacadeRoot()
     {
-        // Note that this only clears the Facade's internal static reference
-        // to the resolved instance. Depending on the implementation of the
-        // binding, it is still possible for the same instance to be returned
-        // on subsequent calls to resolveFacadeInstance, such as when the
-        // object is registered as a singleton in a Service Provider, or when a
-        // testing helper like `[Facade]::shouldReceive` is used, as the Mockery
-        // library also retains static references to its mocks.
         static::clearResolvedInstance(static::getFacadeAccessor());
 
         return static::resolveFacadeInstance(static::getFacadeAccessor());
