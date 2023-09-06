@@ -3,6 +3,7 @@
 namespace Glue\SpApi\Laravel\Facades;
 
 use Exception;
+use Glue\SpApi\Laravel\Traits\RefreshesFacadeInstance;
 use Glue\SpApi\OpenAPI\Clients\TokensV20210301\Model\CreateRestrictedDataTokenRequest;
 use Glue\SpApi\OpenAPI\Configuration\SpApiConfig;
 use Glue\SpApi\OpenAPI\Utilities\SpApiRoster;
@@ -67,6 +68,8 @@ use Illuminate\Support\Facades\Facade;
  */
 class SpApi extends Facade
 {
+    use RefreshesFacadeInstance;
+
     public static function fake()
     {
         static::createFreshMockInstance();

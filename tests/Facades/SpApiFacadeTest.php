@@ -13,6 +13,6 @@ class SpApiFacadeTest extends TestCase
         $spApi1 = SpApi::withRdtRequest(new CreateRestrictedDataTokenRequest());
         $spApi2 = SpApi::withRdtRequest(new CreateRestrictedDataTokenRequest());
 
-        $this->assertNotEquals($spApi1, $spApi2);
+        $this->assertNotSame($spApi1, $spApi2);
     }
 }
