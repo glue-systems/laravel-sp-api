@@ -5,18 +5,16 @@ namespace Glue\SpApi\Laravel\Traits;
 trait RefreshesFacadeInstance
 {
     /**
-     * Resolve the facade root instance from the container.
+     * Get the root object behind the facade.
      *
-     * @param  object|string  $name
      * @return mixed
      */
-    protected static function resolveFacadeInstance($name)
+    public static function getFacadeRoot()
     {
         if (!static::isMock()) {
-            static::clearResolvedInstance(
-                static::getFacadeAccessor()
-            );
+            static::clearResolvedInstance(static::getFacadeAccessor());
         }
-        return parent::resolveFacadeInstance($name);
+
+        return static::resolveFacadeInstance(static::getFacadeAccessor());
     }
 }
