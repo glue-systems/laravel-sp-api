@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Facades;
+namespace Tests\Feature\Facades;
 
 use Glue\SpApi\Laravel\Facades\SpApi;
 use Tests\TestCase;
