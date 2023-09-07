@@ -2,7 +2,6 @@
 
 use Glue\SpApi\Laravel\Utilities\SpApi;
 use Glue\SpApi\Laravel\Utilities\SpApiCredentialProvider;
-use Illuminate\Support\Facades\App;
 
 if (!function_exists('sp_api')) {
 
@@ -11,7 +10,7 @@ if (!function_exists('sp_api')) {
      */
     function sp_api(): SpApi
     {
-        return App::make(SpApi::class);
+        return \Glue\SpApi\Laravel\Facades\SpApi::getFacadeRoot();
     }
 }
 
@@ -22,6 +21,6 @@ if (!function_exists('sp_api_credential_provider')) {
      */
     function sp_api_credential_provider(): SpApiCredentialProvider
     {
-        return App::make(SpApiCredentialProvider::class);
+        return \Glue\SpApi\Laravel\Facades\SpApiCredentialProvider::getFacadeRoot();
     }
 }
