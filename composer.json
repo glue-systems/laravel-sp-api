@@ -20,7 +20,7 @@
     ],
     "require": {
         "php": ">=7.1",
-        "glue-systems/sp-api-open-api": "^2.2",
+        "glue-systems/sp-api-open-api": "^2.3",
         "illuminate/support": "^5.1 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0"
     },
     "autoload": {
