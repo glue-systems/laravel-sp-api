@@ -2,8 +2,8 @@
 
 namespace Tests;
 
-use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
+use Illuminate\Contracts\Config\Repository;
+use Orchestra\Testbench\Bootstrap\LoadEnvironmentVariables;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 /**
@@ -26,36 +26,18 @@ class TestCase extends BaseTestCase
         ];
     }
 
-    /**
-     * Define environment setup.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return void
-     */
-    protected function getEnvironmentSetUp($app)
+    protected function defineEnvironment($app)
     {
-        // There was no documentation for v3 that I could find on how to
-        // implement hydrating of a config file that relies on env values
-        // (standard Laravel stuff). The below implementation follows ideas from
-        // https://github.com/orchestral/testbench/issues/211#issuecomment-360885812
-        // as well as what I could figure out from the testbench source code.
+        // This is a legacy way of handling environment variable loading outside of
+        // the orchestra/testbench conventions; it is not recommended for future
+        // package development.
         $app->useEnvironmentPath(__DIR__ . '/..');
+        app(LoadEnvironmentVariables::class)->bootstrap($app);
 
-        $app->afterBootstrapping(LoadEnvironmentVariables::class, function ($app) {
+        tap($app['config'], function (Repository $config) {
             $laravelSpApiConfig = require __DIR__ . '/../config/sp_api.php';
 
-            $app['config']->set('sp_api', $laravelSpApiConfig);
+            $config->set('sp_api', $laravelSpApiConfig);
         });
-    }
-
-    /**
-     * Resolve application Console Kernel implementation.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return void
-     */
-    protected function resolveApplicationConsoleKernel($app)
-    {
-        $app->singleton(Kernel::class, TestbenchConsoleKernel::class);
     }
 }
