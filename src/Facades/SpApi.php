@@ -2,13 +2,13 @@
 
 namespace Glue\SpApi\Laravel\Facades;
 
-use Exception;
 use Glue\SpApi\Laravel\Traits\RefreshesFacadeInstance;
 use Glue\SpApi\OpenAPI\Clients\TokensV20210301\Model\CreateRestrictedDataTokenRequest;
 use Glue\SpApi\OpenAPI\Configuration\SpApiConfig;
 use Glue\SpApi\OpenAPI\Utilities\SpApiRoster;
 use Glue\SpApi\OpenAPI\Exceptions\DomainApiException;
 use Illuminate\Support\Facades\Facade;
+use Throwable;
 
 /**
  * @method static SpApiConfig getSpApiConfig() Get the global SP-API config object.
@@ -82,7 +82,7 @@ class SpApi extends Facade
                 try {
                     $callbackReturnValue = $receivedCallbackArgument($valueToProvideToCallback);
                     return $callbackReturnValue;
-                } catch (Exception $ex) {
+                } catch (Throwable $ex) {
                     if (SpApiRoster::isApiException($ex)) {
                         throw new DomainApiException($ex);
                     }
@@ -95,7 +95,7 @@ class SpApi extends Facade
         $exception,
         $message = '',
         $code = 0,
-        Exception $previous = null
+        ?Throwable $previous = null
     ) {
         return static::shouldReceive('execute')
             ->andThrow($exception, $message, $code, $previous);

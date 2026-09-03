@@ -2,6 +2,8 @@
 
 namespace Glue\SpApi\Laravel\Traits;
 
+use Illuminate\Support\Facades\Facade;
+
 /**
  * Using this trait will ensure that a new object is instantiated on each
  * static call to a Facade, overriding the default behavior in which a
@@ -27,6 +29,7 @@ trait RefreshesFacadeInstance
      */
     public static function getFacadeRoot()
     {
+        /** @var Facade $this */
         static::clearResolvedInstance(static::getFacadeAccessor());
 
         return static::resolveFacadeInstance(static::getFacadeAccessor());
